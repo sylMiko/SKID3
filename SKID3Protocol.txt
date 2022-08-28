@@ -1,4 +1,4 @@
-#Sylwester_MIKOŁAJCZUK_WCY18KX4
+
 
 from __future__ import print_function
 import hmac
