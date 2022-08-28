@@ -1,0 +1,76 @@
+#Sylwester_MIKOŁAJCZUK_WCY18KX4
+
+from __future__ import print_function
+import hmac
+import binascii
+import hashlib
+
+Uzytkownik_A = "ADAM"
+Uzytkownik_B = "BARTEK"
+
+#Wybieranie liczby losowej_1 -> krok1
+#in - brak
+#out - liczba_losowa_a
+def losowanie_jeden():
+    losowanie_a = randint(1,100)
+    print("Losowanie liczby A: ", losowanie_a)
+    return losowanie_a
+
+#Wybieranie liczby losowej_2 -> krok2
+#in - brak
+#out - liczba_losowa_b
+def losowanie_dwa():
+    los_b = randint(1,100)
+    print("Losowanie liczby B: ", losowanie_b)
+    return los_b
+
+#obliczanie hmack -> krok2
+#in - liczba_losowa_a
+#out - hmack(liczba_losowa_a, liczba_losowa_b, Uzytkownik_B), liczba_losowa_b
+def krok_drugi(los_1):
+    los_2 = losowanie_jeden()
+    hhmacB= hmac.new(keyh,str(los_1).encode(),hashlib.sha512)
+    hhmacB.update(str(los_2).encode()+str(Uzytkownik_B).encode())
+    hmac_b = hhmacB.hexdigest()
+     print("Obliczanie hmack(los1, los2, uzytkownikb:)", hmac_b)
+    return hmac_b, los_2
+
+#obliczanie hmack, porownanie -> krok3
+#in - hmac_b, liczba_losowa_a, liczba_losowa_b
+#out -> true lub false
+def krok_trzeci(wiad_z_drugiego_kroku, los_drugi,los_1):
+    hhmacB_1= hmac.new(keyh,str(los_1).encode(),hashlib.sha512)
+    hhmacB_1.update(str(los_drugi).encode()+str(Uzytkownik_B).encode())
+    hhmacB_1 = hhmacB_1.hexdigest()
+    print("Obliczanie hmack(los1, los2, uzytkownik B (2))", hhmacB_1)
+    if(wiad_z_drugiego_kroku== hhmacB_1):
+       hmack_3 = hmac.new(keyh, str(los_drugi).encode(), hashlib.sha512)
+       hmack_3.update(str(Uzytkownik_A).encode())
+       hmack_3_wypisz = hmack_3.hexdigest()
+       print("hmack(losb, uzytkownika: )", hmack_3_wypisz)
+       print("UZYTKOWNIK A MA PEWNOSC ZE KOMUNIKUJE SIE Z UZYTKOWNIKIEM B")
+       return hmack_3_wypisz
+    else:
+       return false
+
+#obliczanie hmack, porownianie -> krok4
+#in - hmack3, liczba_losowa_b
+#out -> true or false
+def krok_czwarty(hmack_z_3_kroku, los_b):
+    hmack_4 = hmac.new(keyh, str(los_b).encode(), hashlib.sha512)
+    hmack_4.update(str(Uzytkownik_A).encode())
+    hmack_4_wypisz = hmack_4.hexdigest()
+    if(hmack_4_wypisz == hmack_z_3_kroku):
+       print("hmack(losb, uzytkownika(2))", hmack_4_wypisz)
+       print("UZYTKOWNIK B MA PEWNOSC ZE KOMUNIKUJE SIE Z UZYTKOWNIKIEM A")
+       return true
+    else:
+       return false
+
+
+key = "123456789ABCDE"
+keyh = binascii.unhexlify(key)
+los_1 = losowanie_jeden()
+hma_2, los2 = krok_drugi(los_1)
+hmak3 = krok_trzeci(hma_2, los2, los_1)
+krok_czwarty(hmak3, los2)
